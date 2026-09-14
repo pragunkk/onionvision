@@ -30,6 +30,8 @@ The first stage relies on a lightweight YOLO11n model trained to detect individu
 
 Each detected bounding box is cropped from the original high-resolution canvas and passed to an EfficientNet-B0 classifier.
 
+![detected Rotten Onions](sampleSS/detectedRotten.png)
+
 * **Implementation:** The crop is resized to 224x224 and normalized using exact ImageNet mean `[0.485, 0.456, 0.406]` and standard deviation `[0.229, 0.224, 0.225]`.
 * **Execution:** The classifier outputs logits which are passed through a numerically stable Softmax function. This assigns each crop a probability distribution across four classes: `healthy`, `mold`, `rotten`, and `sprouted`.
 
