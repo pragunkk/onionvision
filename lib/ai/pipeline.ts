@@ -1,6 +1,7 @@
 import { modelManager } from "./modelManager";
 import { preprocessYOLO, preprocessEfficientNetCrop } from "./preprocess";
 import { postprocessYOLO, postprocessEfficientNet, DetectionBox, ClassificationResult } from "./postprocess";
+import { GradingResult } from "../grading/engine";
 
 export interface ScoredOnion {
   bbox: [number, number, number, number];
@@ -28,7 +29,9 @@ export async function runInferencePipeline(
     yoloOutputTensor.data as Float32Array,
     sourceCanvas.width,
     sourceCanvas.height,
-    confThreshold
+    confThreshold,
+    0.45,
+    yoloOutputTensor.dims
   );
 
   const results: ScoredOnion[] = [];
@@ -51,6 +54,7 @@ export async function runInferencePipeline(
       detectionConfidence: det.confidence,
       classification,
       cropCanvas, 
+      diameterMm: 0,
     });
   }
 

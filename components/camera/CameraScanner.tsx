@@ -134,7 +134,7 @@ export default function CameraScanner() {
       let currentRatio = measurementRatio;
       if (!currentRatio) { currentRatio = calculateReferenceRatio(canvas); if (currentRatio) setMeasurementRatio(currentRatio); }
 
-      const results = await runInferencePipeline(canvas, 0.35);
+      const results = await runInferencePipeline(canvas, 0.15);
       const resultsWithDimensions: ScoredOnion[] = results.map(onion => {
         let dims: OnionDimensions = { diameterMm: 0, circlePx: null };
         if (currentRatio) dims = estimateOnionDiameter(onion.cropCanvas, currentRatio);
@@ -183,7 +183,7 @@ export default function CameraScanner() {
             }
 
             // 2. Run Inference directly (bypassing processFrame UI logic)
-            const results = await runInferencePipeline(canvas, 0.35);
+            const results = await runInferencePipeline(canvas, 0.15);
             
             // 3. Append Dimensions & Grading
             const resultsWithDimensions: ScoredOnion[] = results.map(onion => {
@@ -343,7 +343,7 @@ export default function CameraScanner() {
                   </div>
                   <div className="space-y-1 font-mono text-xs">
                     <div className="flex justify-between text-neutral-300"><span>Conf:</span><span className="font-semibold">{(confidence * 100).toFixed(1)}%</span></div>
-                    <div className="flex justify-between text-neutral-300"><span>Size:</span><span className="font-semibold">{onion.dimensions?.diameterMm ? `${onion.dimensions.diameterMm.toFixed(1)} mm` : '0 mm'}</span></div>
+                    <div className="flex justify-between text-neutral-300"><span>Size:</span><span className="font-semibold">{onion.diameterMm ? `${onion.diameterMm.toFixed(1)} mm` : '0 mm'}</span></div>
                   </div>
                   {onion.grading && (
                     <div className="mt-2 p-2 bg-neutral-950 rounded-lg border border-neutral-800">
