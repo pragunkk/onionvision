@@ -71,12 +71,16 @@ npm install
 2. **Download WASM Binaries:** Ensure `opencv.js` (v4.8.0) and all `.wasm` / `.mjs` files from `onnxruntime-web` are placed in the `public/` directory.
 3. **Start Development Server:**
 ```bash
-npm run dev --webpack
-
+npm run dev
 ```
 
+4. **Build for Production (Optional):**
+```bash
+npm run build
+npm run start
+```
 
-4. **Access the Application:** Open `http://localhost:3000` in Google Chrome or Edge.
+5. **Access the Application:** Open `http://localhost:3000` in Google Chrome or Edge.
 
 ## What to Expect
 
