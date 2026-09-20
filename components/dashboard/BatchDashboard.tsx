@@ -29,7 +29,7 @@ export default function BatchDashboard() {
 
       defectCounts[onion.classification.label]++;
 
-      const d = onion.dimensions?.diameterMm || 0;
+      const d = onion.diameterMm || 0;
       if (d > 0 && d < 35) diameterBuckets['<35mm']++;
       else if (d >= 35 && d <= 50) diameterBuckets['35-50mm']++;
       else if (d > 50 && d <= 70) diameterBuckets['50-70mm']++;

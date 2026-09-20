@@ -59,9 +59,28 @@ export function postprocessYOLO(
   originalWidth: number,
   originalHeight: number,
   confThreshold: number = 0.35,
-  iouThreshold: number = 0.45
+  iouThreshold: number = 0.45,
+  dims?: readonly number[]
 ): DetectionBox[] {
-  const numCandidates = 8400; 
+  let numCandidates = 8400;
+  let numElements = 5;
+  let isTransposed = false;
+
+  if (dims && dims.length >= 2) {
+    const d1 = dims[dims.length - 2];
+    const d2 = dims[dims.length - 1];
+    if (d1 > d2) {
+      numCandidates = d1;
+      numElements = d2;
+      isTransposed = true;
+    } else {
+      numElements = d1;
+      numCandidates = d2;
+      isTransposed = false;
+    }
+  } else {
+    numElements = Math.floor(output.length / numCandidates);
+  }
 
   // 1. Calculate the exact same scaling and padding used in preprocessing
   const scale = Math.min(640 / originalWidth, 640 / originalHeight);
@@ -71,20 +90,32 @@ export function postprocessYOLO(
   const boxes: DetectionBox[] = [];
 
   for (let i = 0; i < numCandidates; i++) {
-    const confidence = output[4 * numCandidates + i];
-    if (confidence >= confThreshold) {
+    let maxConf = 0;
+    for (let c = 0; c < numElements - 4; c++) {
+      const conf = isTransposed
+        ? output[i * numElements + 4 + c]
+        : output[(4 + c) * numCandidates + i];
+      if (conf > maxConf) maxConf = conf;
+    }
+
+    if (maxConf >= confThreshold) {
       // 2. Reverse the letterbox math to get true original coordinates
-      const cx = (output[0 * numCandidates + i] - padX) / scale;
-      const cy = (output[1 * numCandidates + i] - padY) / scale;
-      const w = output[2 * numCandidates + i] / scale;
-      const h = output[3 * numCandidates + i] / scale;
+      const cx = isTransposed ? output[i * numElements + 0] : output[0 * numCandidates + i];
+      const cy = isTransposed ? output[i * numElements + 1] : output[1 * numCandidates + i];
+      const w  = isTransposed ? output[i * numElements + 2] : output[2 * numCandidates + i];
+      const h  = isTransposed ? output[i * numElements + 3] : output[3 * numCandidates + i];
 
-      const x1 = Math.max(0, cx - w / 2);
-      const y1 = Math.max(0, cy - h / 2);
-      const x2 = Math.min(originalWidth, cx + w / 2);
-      const y2 = Math.min(originalHeight, cy + h / 2);
+      const trueCx = (cx - padX) / scale;
+      const trueCy = (cy - padY) / scale;
+      const trueW = w / scale;
+      const trueH = h / scale;
 
-      boxes.push({ bbox: [x1, y1, x2, y2], confidence });
+      const x1 = Math.max(0, trueCx - trueW / 2);
+      const y1 = Math.max(0, trueCy - trueH / 2);
+      const x2 = Math.min(originalWidth, trueCx + trueW / 2);
+      const y2 = Math.min(originalHeight, trueCy + trueH / 2);
+
+      boxes.push({ bbox: [x1, y1, x2, y2], confidence: maxConf });
     }
   }
 

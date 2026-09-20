@@ -21,6 +21,18 @@ const nextConfig: NextConfig = {
         path: false,
         crypto: false,
       };
+      // Ignore missing .wasm files from onnxruntime-web that webpack tries to bundle
+        config.resolve.alias = {
+        ...config.resolve.alias,
+        "ort-wasm-simd-threaded.jsep.wasm": false,
+        "ort-wasm-simd.jsep.wasm": false,
+        "ort-wasm-threaded.jsep.wasm": false,
+        "ort-wasm.jsep.wasm": false,
+        "ort-wasm-simd-threaded.wasm": false,
+        "ort-wasm-simd.wasm": false,
+        "ort-wasm-threaded.wasm": false,
+        "ort-wasm.wasm": false,
+      };
     }
     return config;
   },
